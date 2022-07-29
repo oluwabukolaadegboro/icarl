@@ -13,6 +13,8 @@ import matplotlib.gridspec as gridspec
 from data_loader import iCIFAR10, iCIFAR100
 from model import iCaRLNet
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def show_images(images):
     N = images.shape[0]
     fig = plt.figure(figsize=(1, N))
@@ -49,12 +51,13 @@ transform_test = transforms.Compose([
 # Initialize CNN
 K = 2000 # total number of exemplars
 icarl = iCaRLNet(2048, 1)
-icarl.cuda()
+# icarl.cuda()
+icarl.to(device)
 
 
 for s in range(0, total_classes, num_classes):
     # Load Datasets
-    print "Loading training examples for classes", range(s, s+num_classes)
+    print ("Loading training examples for classes", range(s, s+num_classes))
     train_set = iCIFAR10(root='./data',
                          train=True,
                          classes=range(s,s+num_classes),
@@ -72,7 +75,6 @@ for s in range(0, total_classes, num_classes):
                                                shuffle=True, num_workers=2)
 
 
-
     # Update representation via BackProp
     icarl.update_representation(train_set)
     m = K / icarl.n_classes
@@ -81,23 +83,26 @@ for s in range(0, total_classes, num_classes):
     icarl.reduce_exemplar_sets(m)
 
     # Construct exemplar sets for new classes
-    for y in xrange(icarl.n_known, icarl.n_classes):
-        print "Constructing exemplar set for class-%d..." %(y),
+    # for y in xrange(icarl.n_known, icarl.n_classes):
+    for y in range(icarl.n_known, icarl.n_classes):
+        print ("Constructing exemplar set for class-%d..." %(y),)
         images = train_set.get_image_class(y)
         icarl.construct_exemplar_set(images, m, transform_test)
-        print "Done"
+        print ("Done")
 
     for y, P_y in enumerate(icarl.exemplar_sets):
-        print "Exemplar set for class-%d:" % (y), P_y.shape
+        print ("Exemplar set for class-%d:" % (y), P_y.shape)
         #show_images(P_y[:10])
 
     icarl.n_known = icarl.n_classes
-    print "iCaRL classes: %d" % icarl.n_known
+    print ("iCaRL classes: %d" % icarl.n_known)
 
     total = 0.0
     correct = 0.0
     for indices, images, labels in train_loader:
-        images = Variable(images).cuda()
+        # images = Variable(images).cuda()
+        images = Variable(images).to(device)
+
         preds = icarl.classify(images, transform_test)
         total += labels.size(0)
         correct += (preds.data.cpu() == labels).sum()
@@ -107,7 +112,8 @@ for s in range(0, total_classes, num_classes):
     total = 0.0
     correct = 0.0
     for indices, images, labels in test_loader:
-        images = Variable(images).cuda()
+        # images = Variable(images).cuda()
+        images = Variable(images).to(device)
         preds = icarl.classify(images, transform_test)
         total += labels.size(0)
         correct += (preds.data.cpu() == labels).sum()

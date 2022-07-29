@@ -21,10 +21,16 @@ class iCIFAR10(CIFAR10):
             train_data = []
             train_labels = []
 
-            for i in xrange(len(self.train_data)):
-                if self.train_labels[i] in classes:
-                    train_data.append(self.train_data[i])
-                    train_labels.append(self.train_labels[i])
+            # print(f'self.train_data:{self.data}')
+
+            # for i in xrange(len(self.train_data)):
+            for i in range(len(self.data)):
+                # if self.train_labels[i] in classes:
+                if self.targets[i] in classes:
+                    # train_data.append(self.train_data[i])
+                    # train_labels.append(self.train_labels[i])
+                    train_data.append(self.data[i])
+                    train_labels.append(self.targets[i])
 
             self.train_data = np.array(train_data)
             self.train_labels = train_labels
@@ -33,10 +39,14 @@ class iCIFAR10(CIFAR10):
             test_data = []
             test_labels = []
 
-            for i in xrange(len(self.test_data)):
-                if self.test_labels[i] in classes:
-                    test_data.append(self.test_data[i])
-                    test_labels.append(self.test_labels[i])
+            # for i in xrange(len(self.test_data)):
+            for i in range(len(self.data)):
+                # if self.test_labels[i] in classes:
+                if self.targets[i] in classes:
+                    # test_data.append(self.test_data[i])
+                    # test_labels.append(self.test_labels[i])
+                    test_data.append(self.data[i])
+                    test_labels.append(self.targets[i])
 
             self.test_data = np.array(test_data)
             self.test_labels = test_labels
