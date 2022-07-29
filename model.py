@@ -11,7 +11,7 @@ from resnet import resnet18
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyper Parameters
-num_epochs = 50
+num_epochs = 2#5#50
 batch_size = 100
 learning_rate = 0.002
 
@@ -123,6 +123,7 @@ class iCaRLNet(nn.Module):
         for img in images:
             # x = Variable(transform(Image.fromarray(img)), volatile=True).cuda()
             x = Variable(transform(Image.fromarray(img)), volatile=True).to(device)
+            print(f'm-: {m}')
             feature = self.feature_extractor(x.unsqueeze(0)).data.cpu().numpy()
             feature = feature / np.linalg.norm(feature) # Normalize
             features.append(feature[0])
@@ -236,4 +237,6 @@ class iCaRLNet(nn.Module):
 
                 if (i+1) % 10 == 0:
                     print ('Epoch [%d/%d], Iter [%d/%d] Loss: %.4f' 
-                           %(epoch+1, num_epochs, i+1, len(dataset)//batch_size, loss.data[0]))
+                           #%(epoch+1, num_epochs, i+1, len(dataset)//batch_size, loss.data[0]))
+                           %(epoch+1, num_epochs, i+1, len(dataset)//batch_size, loss.item()))
+

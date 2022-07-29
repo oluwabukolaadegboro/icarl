@@ -14,6 +14,11 @@ from data_loader import iCIFAR10, iCIFAR100
 from model import iCaRLNet
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+torch.cuda.empty_cache()
+
+import gc
+#del variables
+gc.collect()
 
 def show_images(images):
     N = images.shape[0]
@@ -77,7 +82,7 @@ for s in range(0, total_classes, num_classes):
 
     # Update representation via BackProp
     icarl.update_representation(train_set)
-    m = K / icarl.n_classes
+    m = int(K / icarl.n_classes)
 
     # Reduce exemplar sets for known classes
     icarl.reduce_exemplar_sets(m)
