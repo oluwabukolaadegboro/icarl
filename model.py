@@ -5,8 +5,9 @@ import torch.optim as optim
 from torch.autograd import Variable
 import numpy as np
 from PIL import Image
+import torchvision
 
-from resnet import resnet18
+# from resnet import resnet18
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -19,7 +20,7 @@ class iCaRLNet(nn.Module):
     def __init__(self, feature_size, n_classes):
         # Network architecture
         super(iCaRLNet, self).__init__()
-        self.feature_extractor = resnet18()
+        self.feature_extractor = torchvision.models.resnet18(pretrained=False) #resnet18()
         self.feature_extractor.fc =\
             nn.Linear(self.feature_extractor.fc.in_features, feature_size)
         self.bn = nn.BatchNorm1d(feature_size, momentum=0.01)
@@ -123,7 +124,7 @@ class iCaRLNet(nn.Module):
         for img in images:
             # x = Variable(transform(Image.fromarray(img)), volatile=True).cuda()
             x = Variable(transform(Image.fromarray(img)), volatile=True).to(device)
-            print(f'm-: {m}')
+            # print(f'm-: {m}')
             feature = self.feature_extractor(x.unsqueeze(0)).data.cpu().numpy()
             feature = feature / np.linalg.norm(feature) # Normalize
             features.append(feature[0])
